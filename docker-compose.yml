@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dan0884215
+      POSTGRES_DB: vpn_data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - app_network
+
+  api:
+    build: backend
+    image: api-img
+    container_name: api_service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/vpn_data
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: dan0884215
+      WG_URL: http://147.45.137.246:51821
+      WG_PASSWORD: hi2jS,.eMZr#rF
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    networks:
+      - app_network
+  bot:
+    build: bot
+    image: bot-img
+    container_name: bot
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+
+  frontend:
+    build: app-ui
+    image: ui-img
+    container_name: ui
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    ports:
+      - "3000:3000"
+    networks:
+      - app_network
+
+  client:
+    build: client
+    image: client-img
+    container_name: client-con
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - app_network
+    restart: "on-failure"
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge

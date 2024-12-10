@@ -1,0 +1,4 @@
+../.env
+.idea
+.venv
+backend/src/main/java/ru/rubytunnel/schema.sql
