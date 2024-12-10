@@ -1,12 +1,75 @@
 services:
+  # База данных PostgreSQL
+  - type: pserv
+    name: db
+    env: docker
+    plan: free
+    disk:
+      name: postgres_data
+      mountPath: /var/lib/postgresql/data
+    envVars:
+      - key: POSTGRES_USER
+        value: admin
+      - key: POSTGRES_PASSWORD
+        value: dan0884215 # Рекомендуется использовать секреты
+      - key: POSTGRES_DB
+        value: vpn_data
+
+  # Redis сервис
+  - type: redis
+    name: redis
+    ipAllowList: [] # Разрешить все IP
+    plan: free
+
+  # API сервис
+  - type: web
+    name: api
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    buildCommand: docker build -t api-img ./backend
+    startCommand: docker run api-img
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: postgres://admin:dan0884215@db:5432/vpn_data
+      - key: WG_URL
+        value: http://147.45.137.246:51821
+      - key: WG_PASSWORD
+        value: hi2jS,.eMZr#rF
+    dependsOn:
+      - db
+
+  # Bot сервис
+  - type: web
+    name: bot
+    env: docker
+    dockerfilePath: ./bot/Dockerfile
+    plan: free
+    buildCommand: docker build -t bot-img ./bot
+    startCommand: docker run bot-img
+
+  # Frontend сервис
   - type: web
     name: frontend
     env: docker
-    buildCommand: docker build -t frontend ./frontend
-    startCommand: docker run frontend
-    
+    dockerfilePath: ./app-ui/Dockerfile
+    plan: free
+    buildCommand: docker build -t ui-img ./app-ui
+    startCommand: docker run ui-img
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+
+  # Client сервис
   - type: web
-    name: backend
+    name: client
     env: docker
-    buildCommand: docker build -t backend ./backend
-    startCommand: docker run backend 
+    dockerfilePath: ./client/Dockerfile
+    plan: free
+    buildCommand: docker build -t client-img ./client
+    startCommand: docker run client-img
+    dependsOn:
+      - api
+      - frontend
