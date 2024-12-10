@@ -1,0 +1,7 @@
+ru\rubytunnel\api\WgApi.class
+ru\rubytunnel\controller\UserController.class
+ru\rubytunnel\model\User.class
+ru\rubytunnel\service\UserService.class
+ru\rubytunnel\App.class
+ru\rubytunnel\service\UserServiceImpl.class
+ru\rubytunnel\repository\UserRepository.class
