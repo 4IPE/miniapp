@@ -6,8 +6,6 @@ import { Download, Shield, Lock, Gem } from 'lucide-react';
 import { useUser } from './contexts/UserContext';
 import axiosConfig from "./config/axiosConfig";
 
-const API_URL = 'http://localhost:8080/api';
-
 export default function Home() {
   const { userData, updateUserData } = useUser();
   const [isPaid, setIsPaid] = useState(false);
@@ -21,11 +19,11 @@ export default function Home() {
 
       try {
         const params = new URLSearchParams({
-          userId: 1,
-          username: 'test_user'
+          userId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id,
+          username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username
         });
 
-        const response = await axiosConfig.get(`/user/profile?${params}`);
+        const response = await axiosConfig.get(`/user/profile?${params.toString()}`);
         const userInfo = response.data;
         
         updateUserData(userInfo);

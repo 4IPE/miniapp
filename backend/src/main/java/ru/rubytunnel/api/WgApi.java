@@ -1,17 +1,15 @@
 package ru.rubytunnel.api;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.qrcode.QRCodeWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -27,7 +25,7 @@ public class WgApi {
     private final RestTemplate restTemplate;
     private String cookies;
 
-    public WgApi(@Value("${wg.url}") String urlWg, 
+    public WgApi(@Value("${wg.url}") String urlWg,
                  @Value("${wg.password}") String passwordWg) {
         this.urlWg = urlWg;
         this.passwordWg = passwordWg;
@@ -45,12 +43,12 @@ public class WgApi {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-            
+
             ResponseEntity<String> response = restTemplate.exchange(
-                url, 
-                HttpMethod.POST, 
-                request, 
-                String.class
+                    url,
+                    HttpMethod.POST,
+                    request,
+                    String.class
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
@@ -74,12 +72,12 @@ public class WgApi {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
-        
+
         ResponseEntity<Map> response = restTemplate.exchange(
-            url, 
-            HttpMethod.POST, 
-            request, 
-            Map.class
+                url,
+                HttpMethod.POST,
+                request,
+                Map.class
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -91,26 +89,26 @@ public class WgApi {
 
     public String getClients(String name) {
         String url = urlWg + "/api/wireguard/client";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, cookies);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        
+
         ResponseEntity<List> response = restTemplate.exchange(
-            url, 
-            HttpMethod.GET, 
-            request, 
-            List.class
+                url,
+                HttpMethod.GET,
+                request,
+                List.class
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
             List<Map<String, Object>> clients = response.getBody();
             return clients.stream()
-                .filter(client -> name.equals(client.get("name")))
-                .findFirst()
-                .map(client -> client.get("id").toString())
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                    .filter(client -> name.equals(client.get("name")))
+                    .findFirst()
+                    .map(client -> client.get("id").toString())
+                    .orElseThrow(() -> new RuntimeException("Client not found"));
         } else {
             throw new RuntimeException("Failed to get clients");
         }
@@ -118,17 +116,17 @@ public class WgApi {
 
     public void deleteClient(String clientId) {
         String url = urlWg + "/api/wireguard/client/" + clientId;
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, cookies);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        
+
         ResponseEntity<Void> response = restTemplate.exchange(
-            url, 
-            HttpMethod.DELETE, 
-            request, 
-            Void.class
+                url,
+                HttpMethod.DELETE,
+                request,
+                Void.class
         );
 
         if (response.getStatusCode() != HttpStatus.OK) {
@@ -138,17 +136,17 @@ public class WgApi {
 
     public void downloadConfiguration(String clientId, String clientName) {
         String url = urlWg + "/api/wireguard/client/" + clientId + "/configuration";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, cookies);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        
+
         ResponseEntity<byte[]> response = restTemplate.exchange(
-            url, 
-            HttpMethod.GET, 
-            request, 
-            byte[].class
+                url,
+                HttpMethod.GET,
+                request,
+                byte[].class
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
@@ -166,10 +164,10 @@ public class WgApi {
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             var bitMatrix = qrCodeWriter.encode(configData, BarcodeFormat.QR_CODE, 350, 350);
-            
+
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-            
+
             return outputStream.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate QR code", e);
@@ -178,17 +176,17 @@ public class WgApi {
 
     public void disableClientWg(String clientId) {
         String url = urlWg + "/api/wireguard/client/" + clientId + "/disable";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, cookies);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        
+
         ResponseEntity<Void> response = restTemplate.exchange(
-            url, 
-            HttpMethod.POST, 
-            request, 
-            Void.class
+                url,
+                HttpMethod.POST,
+                request,
+                Void.class
         );
 
         if (response.getStatusCode() != HttpStatus.OK) {
@@ -198,17 +196,17 @@ public class WgApi {
 
     public void enableClient(String clientId) {
         String url = urlWg + "/api/wireguard/client/" + clientId + "/enable";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.COOKIE, cookies);
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        
+
         ResponseEntity<Void> response = restTemplate.exchange(
-            url, 
-            HttpMethod.POST, 
-            request, 
-            Void.class
+                url,
+                HttpMethod.POST,
+                request,
+                Void.class
         );
 
         if (response.getStatusCode() != HttpStatus.OK) {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
 const axiosConfig = axios.create({
-  baseURL:  'http://localhost:8080/api'
+  baseURL:  'https://ruby-tunnel.ru/api'
 });
 export default axiosConfig;
