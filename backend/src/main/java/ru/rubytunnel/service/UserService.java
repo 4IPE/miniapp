@@ -1,5 +1,6 @@
 package ru.rubytunnel.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import ru.rubytunnel.model.User;
 
 import java.io.IOException;
@@ -28,4 +29,7 @@ public interface UserService {
     User createPayment(Map<String, Object> data);
 
     Map<String, Object> getPaymentStatus(String paymentId);
+
+    @Transactional
+    Long countReferalWithUsers(Long chatId);
 }

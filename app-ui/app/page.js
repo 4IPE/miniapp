@@ -6,75 +6,31 @@ import { Download, Shield, Lock, Gem } from 'lucide-react';
 import { useUser } from './contexts/UserContext';
 import axiosConfig from "./config/axiosConfig";
 
-const API_URL = 'https://1bc3-176-126-49-56.ngrok-free.app/api';
+const API_URL = 'http://localhost:8080/api';
 
 export default function Home() {
   const { userData, updateUserData } = useUser();
-  const [isPaid, setIsPaid] = useState(userData?.subscriptionActive || false);
+  const [isPaid, setIsPaid] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-
-  // Функция для тестового запроса
-  const handleTestRequest = async () => {
-    try {
-      console.log('Starting test request...');
-      
-      // Логируем доступность Telegram WebApp
-      console.log('Telegram WebApp available:', !!window.Telegram?.WebApp);
-      
-      const tg = window.Telegram?.WebApp;
-      const userId = tg?.initDataUnsafe?.user?.id || '1';
-      const username = tg?.initDataUnsafe?.user?.username || 'test_user';
-      
-      console.log('Request parameters:', { userId, username });
-
-      // Добавляем полный URL для отладки
-      const fullUrl = `${API_URL}/user/profile?userId=${userId}&username=${username}`;
-      console.log('Making request to:', fullUrl);
-
-      try {
-        // Пробуем сначала с axios
-        const response = await axiosConfig.get(`/user/profile`, {
-          params: { userId, username }
-        });
-        console.log('Axios response:', response);
-      } catch (axiosError) {
-        console.error('Axios error:', axiosError);
-        
-        // Пробуем с fetch как запасной вариант
-        console.log('Trying with fetch...');
-        const fetchResponse = await fetch(fullUrl);
-        const data = await fetchResponse.json();
-        console.log('Fetch response:', data);
-      }
-
-      // Показываем результат в UI
-      alert('Запрос выполнен, проверьте консоль');
-      
-    } catch (error) {
-      console.error('Final error:', error);
-      alert(`Ошибка: ${error.message}`);
-    }
-  };
 
   useEffect(() => {
     const initUser = async () => {
-      // Проверяем, был ли уже инициализирован пользователь
       if (isInitialized || !window.Telegram?.WebApp) {
         return;
       }
 
       try {
         const params = new URLSearchParams({
-          userId: userData?.id,
-          username: userData?.username
+          userId: 1,
+          username: 'test_user'
         });
 
-        const response = await axiosConfig.get(`${API_URL}/user/profile?${params}`);
+        const response = await axiosConfig.get(`/user/profile?${params}`);
         const userInfo = response.data;
         
         updateUserData(userInfo);
-        setIsPaid(userInfo.subscriptionActive);
-        setIsInitialized(true); // Помечаем, что инициализация прошла
+        setIsPaid(userInfo.active);
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error initializing user:', error);
       }
@@ -83,7 +39,7 @@ export default function Home() {
     if (window.Telegram?.WebApp) {
       initUser();
     }
-  }, [updateUserData]);
+  }, [updateUserData, isInitialized]);
 
   const handlePurchase = () => {
     setIsPaid(true);
@@ -108,12 +64,6 @@ export default function Home() {
   return (
     <Layout currentPage="home">
       <div className="flex flex-col items-center justify-center space-y-6">
-        <button 
-          onClick={handleTestRequest}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Тест соединения
-        </button>
         <div className="relative">
           <Shield className="w-20 h-20 text-red-500" />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -122,7 +72,7 @@ export default function Home() {
         </div>
         <h1 className="text-3xl font-bold text-red-500 text-center">RubyTunnel</h1>
         <p className="text-red-300 text-center max-w-md">
-          Откройте для себя скрытый драгоценный камень VPN-технологии. RubyTunnel: Где безопасность сияет ярко, как отполированный руби��.
+          Откройте для себя скрытый драгоценный камень VPN-технологии. RubyTunnel: Где безопасность сияет ярко, как отполированный рубин.
         </p>
         <div className="flex space-x-4">
           <button 

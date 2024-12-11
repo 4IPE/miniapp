@@ -35,7 +35,16 @@ public class UserController {
         }
     }
 
-
+    @GetMapping("/user/profile/info")
+    public ResponseEntity<?> getUserProfile(@RequestParam(name = "chatId") Long chatId) {
+        try {
+            User user = userService.getUserProfile(chatId);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            log.error("Error get user profile: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
     @GetMapping("/user/{userId}/config")
     public ResponseEntity<?> getVpnConfig(@PathVariable Long userId) {
         try {
@@ -124,17 +133,27 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/{userId}/referral/{referralCode}")
-    public ResponseEntity<?> enterReferralCode(
-            @PathVariable Long userId,
-            @PathVariable Long referralCode
+    @PostMapping("/user/referral/input")
+    public ResponseEntity<?> enterReferralCode(@RequestParam(name = "chatId") Long chatId,
+                                               @RequestParam(name = "referralCode") Long referralCode
     ) {
         try {
-            User user = userService.enterReferralCode(userId, referralCode);
+            User user = userService.enterReferralCode(chatId, referralCode);
             return ResponseEntity.ok(Map.of("message", "Referral code applied successfully"));
         } catch (Exception e) {
             log.error("Error applying referral code: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/user/referral/count")
+    public ResponseEntity<?> getCountReferal(@RequestParam(name = "chatId") Long chatId ){
+        try {
+            return ResponseEntity.ok().body(userService.countReferalWithUsers(chatId));
+        }catch (Exception e){
+            log.error("Error count referral users: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Fail");
+        }
+
     }
 }

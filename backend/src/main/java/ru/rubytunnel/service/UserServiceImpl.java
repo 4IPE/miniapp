@@ -51,26 +51,54 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User enterReferralCode(Long userId, Long referralCode) {
-        User user = getUserProfile(userId);
-        User referralUser = userRepository.findByChatId(referralCode)
-            .orElseThrow(() -> new RuntimeException("Referral user not found"));
+        try {
+            // Получаем текущего пользователя
+            User user = getUserProfile(userId);
+            
+            // Проверяем существование пользователя с таким referral кодом
+            User referralUser = userRepository.findByChatId(referralCode)
+                .orElseThrow(() -> new RuntimeException("Referral user not found"));
 
-        if (user.getChatId().equals(referralUser.getChatId())) {
-            throw new RuntimeException("Cannot use own referral code");
+            // Проверяем, не пытается ли пользователь использовать свой собственный код
+            if (user.getChatId().equals(referralUser.getChatId())) {
+                throw new RuntimeException("Cannot use own referral code");
+            }
+
+            // Проверяем, не использовал ли пользователь уже реферальный код
+            if (user.getReferalCode() != null) {
+                throw new RuntimeException("Referral code already used");
+            }
+
+            if (user.getActive()) {
+                // Если пользователь уже активен, просто добавляем реферальный код
+                user.setReferalCode(referralCode);
+            } else {
+                try {
+                    // Создаем нового клиента в WireGuard
+//                    Map<String, Object> wgResponse = wgApi.createClientWg(user.getNameTg());
+//                    if (wgResponse == null || wgResponse.get("id") == null) {
+//                        throw new RuntimeException("Failed to create WireGuard client");
+//                    }
+//
+//                    String wgId = wgResponse.get("id").toString();
+//
+//                    // Обновляем данные пользователя
+//                    user.setWgId(wgId);
+                    user.setActive(true);
+                    user.setDemo(true);
+                    user.setSubscriptionEndDate(LocalDateTime.now().plusDays(7).withSecond(0).withNano(0));
+                    user.setReferalCode(referralCode);
+
+                    userRepository.save(referralUser);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error creating WireGuard client: " + e.getMessage());
+                }
+            }
+
+            return userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing referral code: " + e.getMessage());
         }
-
-        if (user.getActive()) {
-            user.setReferalCode(referralCode);
-        } else {
-            String wgId = wgApi.createClientWg(user.getNameTg()).get("id").toString();
-            user.setWgId(wgId);
-            user.setActive(true);
-            user.setDemo(true);
-            user.setSubscriptionEndDate(LocalDateTime.now().plusDays(7));
-            user.setReferalCode(referralCode);
-        }
-
-        return userRepository.save(user);
     }
 
     @Override
@@ -86,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
         user.setActive(true);
         user.setDemo(false);
-        user.setSubscriptionEndDate(LocalDateTime.now().plusDays(30));
+        user.setSubscriptionEndDate(LocalDateTime.now().plusDays(30).withSecond(0).withNano(0));
 
         return userRepository.save(user);
     }
@@ -150,5 +178,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, Object> getPaymentStatus(String paymentId) {
         return payments.getOrDefault(paymentId, Map.of("error", "Payment not found"));
+    }
+    @Transactional
+    @Override
+    public Long countReferalWithUsers(Long chatId){
+        User user = getUserProfile(chatId);
+        Long count = userRepository.countActiveReferrals(String.valueOf(chatId));
+        user.setCountReferalUsers(count);
+        userRepository.save(user);
+        return count;
     }
 }

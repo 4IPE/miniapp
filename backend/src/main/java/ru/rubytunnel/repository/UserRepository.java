@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // count_active_referrals
     @Query("SELECT COUNT(u) FROM User u WHERE u.referalCode = :chatId AND u.active = true AND u.demo = false")
-    Long countActiveReferrals(@Param("chatId") Long chatId);
+    Long countActiveReferrals(@Param("chatId") String chatId);
 
     // get_all
     @Override

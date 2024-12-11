@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    chat_id INTEGER UNIQUE,
+    chat_id BIGINT UNIQUE,
     wg_id VARCHAR(255),
     active BOOLEAN DEFAULT FALSE,
     name_tg VARCHAR(255),
