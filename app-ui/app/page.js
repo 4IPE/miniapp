@@ -20,7 +20,7 @@ export default function Home() {
       try {
         const params = new URLSearchParams({
           userId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id,
-          username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username
+          username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.Telegram?.WebApp?.initDataUnsafe?.user?.id
         });
 
         const response = await axiosConfig.get(`/user/profile?${params.toString()}`);
