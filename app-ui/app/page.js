@@ -17,15 +17,24 @@ export default function Home() {
         return;
       }
 
+      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+      if (!user) {
+        console.error("User data not found");
+        return;
+      }
+
+      // Если username не определён, используем id
+      const username = user.username ? user.username : user.id;
+
       try {
         const params = new URLSearchParams({
-          userId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id,
-          username: window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.Telegram?.WebApp?.initDataUnsafe?.user?.id
+          userId: user.id||770055005,
+          username: username||all0b0y
         });
 
         const response = await axiosConfig.get(`/user/profile?${params.toString()}`);
         const userInfo = response.data;
-        
+
         updateUserData(userInfo);
         setIsPaid(userInfo.active);
         setIsInitialized(true);
@@ -73,15 +82,15 @@ export default function Home() {
           Откройте для себя скрытый драгоценный камень VPN-технологии. RubyTunnel: Где безопасность сияет ярко, как отполированный рубин.
         </p>
         <div className="flex space-x-4">
-          <button 
-            onClick={handlePurchase} 
+          <button
+            onClick={handlePurchase}
             className={`${isPaid ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white px-6 py-2 rounded-full flex items-center justify-center transition-colors duration-300 text-sm`}
           >
             <Gem className="w-4 h-4 mr-2" />
             {isPaid ? `Подписка активна до ${userData?.subscriptionEndDate}` : `Купить VPN за ${userData?.price || '999'} ₽`}
           </button>
         </div>
-        
+
         <div className="w-full max-w-md space-y-4">
           <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
             <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">
@@ -127,4 +136,3 @@ export default function Home() {
     </Layout>
   );
 }
-

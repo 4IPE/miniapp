@@ -22,7 +22,7 @@ export default function Referrals() {
         const params = new URLSearchParams({
           chatId: userData.chatId
         });
-        const response = await axiosConfig.get(`/user/referral/count?${params}`);
+        const response = await axiosConfig.get(`/user/referral/count?${params.toString()}`);
         setReferralCount(response.data);
       } catch (error) {
         console.error('Error fetching referral count:', error);
@@ -49,7 +49,7 @@ export default function Referrals() {
         chatId: userData.chatId,
         referralCode: inputCode
       });
-      await axiosConfig.post(`/user/referral/input?${referralParams}`);
+      await axiosConfig.post(`/user/referral/input?${referralParams.toString()}`);
       setInputCode('')
       alert('Реферальный код успешно применен!');
       router.push('/');
