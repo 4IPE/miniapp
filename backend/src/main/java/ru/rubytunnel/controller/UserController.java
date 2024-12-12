@@ -45,8 +45,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/{userId}/config")
-    public ResponseEntity<?> getVpnConfig(@PathVariable Long userId) {
+    @GetMapping("/user/config")
+    public ResponseEntity<?> getVpnConfig(@RequestParam(name = "userId") Long userId) {
         try {
             Map<String, String> result = userService.generateVpnConfigAndQr(userId);
             Path configPath = Path.of(result.get("config_path"));
@@ -63,23 +63,6 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user/{userId}/qr")
-    public ResponseEntity<?> getVpnQr(@PathVariable Long userId) {
-        try {
-            Map<String, String> result = userService.generateVpnConfigAndQr(userId);
-            Path qrPath = Path.of(result.get("qr_code_path"));
-            Resource resource = new UrlResource(qrPath.toUri());
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + qrPath.getFileName().toString() + "\"")
-                    .body(resource);
-        } catch (Exception e) {
-            log.error("Error generating QR code: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
 
     @GetMapping("/users/export")
     public ResponseEntity<?> exportUsers(@RequestParam Long adminId) {
@@ -100,8 +83,8 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @PostMapping("/user/{userId}/disable")
-    public ResponseEntity<?> disableUser(@PathVariable Long userId) {
+    @PostMapping("/user/disable")
+    public ResponseEntity<?> disableUser(@RequestParam(name = "userId") Long userId) {
         try {
             log.info("/user/{userId}/disable");
             User user = userService.disableClient(userId);

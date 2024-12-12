@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User getOrCreateUser(Long chatId, String username) {
         return userRepository.findByChatId(chatId)
                 .orElseGet(() -> {
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User createUser(Long chatId, String name) {
         if (userRepository.existsByChatId(chatId)) {
             throw new RuntimeException("User already exists");
@@ -110,7 +112,8 @@ public class UserServiceImpl implements UserService {
         User user = getUserProfile(userId);
 
         if (user.getWgId() == null) {
-            String wgId = wgApi.createClientWg(user.getNameTg()).get("id").toString();
+            wgApi.createClientWg(user.getNameTg());
+            String wgId = wgApi.getClients(user.getNameTg());
             user.setWgId(wgId);
         } else {
             wgApi.enableClient(user.getWgId());
