@@ -17,11 +17,11 @@ export default function Home() {
         return;
       }
 
-      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      if (!user) {
-        console.error("User data not found");
-        return;
-      }
+//      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+//      if (!user) {
+//        console.error("User data not found");
+//        return;
+//      }
 
       // Если username не определён, используем id
       const username = user.username ? user.username : user.id;

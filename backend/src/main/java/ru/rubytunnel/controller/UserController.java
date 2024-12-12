@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +44,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
     @GetMapping("/user/{userId}/config")
     public ResponseEntity<?> getVpnConfig(@PathVariable Long userId) {
         try {
@@ -103,6 +103,7 @@ public class UserController {
     @PostMapping("/user/{userId}/disable")
     public ResponseEntity<?> disableUser(@PathVariable Long userId) {
         try {
+            log.info("/user/{userId}/disable");
             User user = userService.disableClient(userId);
             return ResponseEntity.ok(Map.of("message", "User disabled successfully"));
         } catch (Exception e) {
@@ -138,6 +139,7 @@ public class UserController {
                                                @RequestParam(name = "referralCode") Long referralCode
     ) {
         try {
+            log.info("/user/referral/input");
             User user = userService.enterReferralCode(chatId, referralCode);
             return ResponseEntity.ok(Map.of("message", "Referral code applied successfully"));
         } catch (Exception e) {
@@ -147,10 +149,11 @@ public class UserController {
     }
 
     @GetMapping("/user/referral/count")
-    public ResponseEntity<?> getCountReferal(@RequestParam(name = "chatId") Long chatId ){
+    public ResponseEntity<?> getCountReferal(@RequestParam(name = "chatId") Long chatId) {
         try {
+            log.info("/user/referral/count");
             return ResponseEntity.ok().body(userService.countReferalWithUsers(chatId));
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error count referral users: {}", e.getMessage());
             return ResponseEntity.badRequest().body("Fail");
         }
