@@ -133,15 +133,8 @@ public class UserServiceImpl implements UserService {
         String configFileName = user.getNameTg() + ".conf";
         wgApi.downloadConfiguration(user.getWgId(), user.getNameTg());
 
-        byte[] configContent = wgApi.generateQrCode(new String(java.nio.file.Files.readAllBytes(
-                java.nio.file.Path.of(configFileName))));
-
-        String qrFileName = user.getNameTg() + "_qrcode.png";
-        java.nio.file.Files.write(java.nio.file.Path.of(qrFileName), configContent);
-
         Map<String, String> result = new HashMap<>();
         result.put("config_path", configFileName);
-        result.put("qr_code_path", qrFileName);
         return result;
     }
 
