@@ -10,7 +10,10 @@ import ru.rubytunnel.repository.UserRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -25,8 +28,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserProfile(Long userId) {
         return userRepository.findByChatId(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
     @Override
     public User getOrCreateUser(Long chatId, String username) {
         return userRepository.findByChatId(chatId)
@@ -37,6 +41,7 @@ public class UserServiceImpl implements UserService {
                     return userRepository.save(newUser);
                 });
     }
+
     @Override
     public User createUser(Long chatId, String name) {
         if (userRepository.existsByChatId(chatId)) {
@@ -54,10 +59,10 @@ public class UserServiceImpl implements UserService {
         try {
             // Получаем текущего пользователя
             User user = getUserProfile(userId);
-            
+
             // Проверяем существование пользователя с таким referral кодом
             User referralUser = userRepository.findByChatId(referralCode)
-                .orElseThrow(() -> new RuntimeException("Referral user not found"));
+                    .orElseThrow(() -> new RuntimeException("Referral user not found"));
 
             // Проверяем, не пытается ли пользователь использовать свой собственный код
             if (user.getChatId().equals(referralUser.getChatId())) {
@@ -74,16 +79,15 @@ public class UserServiceImpl implements UserService {
                 user.setReferalCode(referralCode);
             } else {
                 try {
-                    // Создаем нового клиента в WireGuard
-//                    Map<String, Object> wgResponse = wgApi.createClientWg(user.getNameTg());
-//                    if (wgResponse == null || wgResponse.get("id") == null) {
-//                        throw new RuntimeException("Failed to create WireGuard client");
-//                    }
-//
-//                    String wgId = wgResponse.get("id").toString();
-//
-//                    // Обновляем данные пользователя
-//                    user.setWgId(wgId);
+                    Map<String, Object> wgResponse = wgApi.createClientWg(user.getNameTg());
+                    if (wgResponse == null || wgResponse.get("success").equals(false)) {
+                        throw new RuntimeException("Failed to create WireGuard client");
+                    }
+
+                    String wgId = wgApi.getClients(user.getNameTg());
+
+
+                    user.setWgId(wgId);
                     user.setActive(true);
                     user.setDemo(true);
                     user.setSubscriptionEndDate(LocalDateTime.now().plusDays(7).withSecond(0).withNano(0));
@@ -130,7 +134,7 @@ public class UserServiceImpl implements UserService {
         wgApi.downloadConfiguration(user.getWgId(), user.getNameTg());
 
         byte[] configContent = wgApi.generateQrCode(new String(java.nio.file.Files.readAllBytes(
-            java.nio.file.Path.of(configFileName))));
+                java.nio.file.Path.of(configFileName))));
 
         String qrFileName = user.getNameTg() + "_qrcode.png";
         java.nio.file.Files.write(java.nio.file.Path.of(qrFileName), configContent);
@@ -155,7 +159,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User disableClient(Long userId) {
         User user = getUserProfile(userId);
-        
+
         if (user.getWgId() != null) {
             wgApi.disableClientWg(user.getWgId());
         }
@@ -179,9 +183,10 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> getPaymentStatus(String paymentId) {
         return payments.getOrDefault(paymentId, Map.of("error", "Payment not found"));
     }
+
     @Transactional
     @Override
-    public Long countReferalWithUsers(Long chatId){
+    public Long countReferalWithUsers(Long chatId) {
         User user = getUserProfile(chatId);
         Long count = userRepository.countActiveReferrals(String.valueOf(chatId));
         user.setCountReferalUsers(count);

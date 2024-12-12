@@ -23,13 +23,12 @@ export default function Home() {
         return;
       }
 
-      // Если username не определён, используем id
       const username = user.username ? user.username : user.id;
 
       try {
         const params = new URLSearchParams({
-          userId: user.id||770055005,
-          username: username||all0b0y
+          userId: user.id || '770055005',
+          username: username || 'all0b0y'
         });
 
         const response = await axiosConfig.get(`/user/profile?${params.toString()}`);
@@ -49,9 +48,17 @@ export default function Home() {
   }, [updateUserData, isInitialized]);
 
   const handlePurchase = () => {
-    setIsPaid(true);
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.showAlert('Подписка успешно активирована!');
+    if (!isPaid) {
+      // Подписка не активна, перенаправляем на страницу оплаты
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert('Перенаправление на страницу оплаты...');
+      }
+      window.location.href = '/payment';
+    } else {
+      // Если подписка уже активна, можно сделать ничего или показать уведомление
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert('Подписка уже активна.');
+      }
     }
   };
 
@@ -67,6 +74,23 @@ export default function Home() {
       }
     }
   };
+
+  const formatSubscriptionDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return date.toLocaleString('ru-RU', options);
+  };
+
+  const subscriptionText = isPaid
+    ? `Подписка активна до ${formatSubscriptionDate(userData?.subscriptionEndDate)}`
+    : `Купить VPN за ${userData?.price || '999'} ₽`;
 
   return (
     <Layout currentPage="home">
@@ -87,7 +111,7 @@ export default function Home() {
             className={`${isPaid ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white px-6 py-2 rounded-full flex items-center justify-center transition-colors duration-300 text-sm`}
           >
             <Gem className="w-4 h-4 mr-2" />
-            {isPaid ? `Подписка активна до ${userData?.subscriptionEndDate}` : `Купить VPN за ${userData?.price || '999'} ₽`}
+            {subscriptionText}
           </button>
         </div>
 
