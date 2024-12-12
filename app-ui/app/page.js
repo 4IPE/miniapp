@@ -60,7 +60,7 @@ export default function Home() {
     }
   };
 
-  const handleDownloadConfig = async (server) => {
+  const handleDownloadConfig = (server) => {
     if (!isPaid) {
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.showAlert('Пожалуйста, приобретите VPN для загрузки конфигурации');
@@ -68,32 +68,14 @@ export default function Home() {
       return;
     }
 
-    try {
-      const response = await axiosConfig.get(`/user/config?userId=${userData.chatId}`, {
-        responseType: 'blob',
-      });
+    const downloadUrl = `https://ruby-tunnel.ru/api/user/config?userId=${userData.chatId}`;
 
-      // Создаем URL для файла
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const downloadUrl = window.URL.createObjectURL(blob);
-
-      // Создаем временную ссылку для скачивания
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `${userData?.nameTg || 'config'}.conf`; // Имя файла
-      link.click();
-
-      // Освобождаем URL
-      window.URL.revokeObjectURL(downloadUrl);
-
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.showAlert('Конфигурация успешно загружена!');
-      }
-    } catch (error) {
-      console.error('Error downloading config:', error);
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.showAlert('Ошибка при загрузке конфигурации.');
-      }
+    if (window.Telegram?.WebApp) {
+      // Перенаправляем в браузер
+      window.Telegram.WebApp.openLink(downloadUrl);
+    } else {
+      // Если Telegram Web App недоступен, используем обычный переход
+      window.location.href = downloadUrl;
     }
   };
 
@@ -103,7 +85,9 @@ export default function Home() {
     const options = {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     };
     return date.toLocaleString('ru-RU', options);
   };
