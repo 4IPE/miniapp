@@ -94,61 +94,66 @@ export default function Profile() {
   }
 
   return (
-    <Layout currentPage="profile">
-      <div className="space-y-8">
-        <div className="flex flex-col items-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-red-600 to-red-900 rounded-full flex items-center justify-center mb-4">
-            <User className="w-12 h-12 text-white" />
+      <Layout currentPage="profile">
+        <div className="space-y-8">
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-red-600 to-red-900 rounded-full flex items-center justify-center mb-4">
+              <User className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-red-500">{userInfo.name}</h1>
+            {userData?.chatId && <p className="text-red-400 mt-2">ID: {userData.chatId}</p>}
           </div>
-          <h1 className="text-3xl font-bold text-red-500">{userInfo.name}</h1>
-          {userData?.chatId && <p className="text-red-400 mt-2">ID: {userData.chatId}</p>}
-        </div>
 
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
-            <h2 className="text-xl font-semibold text-red-400 mb-2">Статус подписки</h2>
-            <p className="text-red-300 text-lg">{userInfo.active ? 'Активна' : 'Неактивна'}</p>
+          <div className="space-y-4">
+            <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
+              <h2 className="text-xl font-semibold text-red-400 mb-2">Статус подписки</h2>
+              <p className="text-red-300 text-lg">{userInfo.active ? 'Активна' : 'Неактивна'}</p>
+            </div>
+            <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
+              <h2 className="text-xl font-semibold text-red-400 mb-2">Подписка истекает</h2>
+              <p className="text-red-300 text-lg">{formatSubscriptionDate(userInfo.subscriptionEndDate)}</p>
+            </div>
+            <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
+              <h2 className="text-xl font-semibold text-red-400 mb-2">Текущая цена подписки</h2>
+              <p className="text-red-300 text-lg flex items-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                {userInfo.price}
+              </p>
+            </div>
           </div>
-          <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
-            <h2 className="text-xl font-semibold text-red-400 mb-2">Подписка истекает</h2>
-            <p className="text-red-300 text-lg">{formatSubscriptionDate(userInfo.subscriptionEndDate)}</p>
-          </div>
-          <div className="bg-gradient-to-r from-red-800 to-black p-4 rounded-md">
-            <h2 className="text-xl font-semibold text-red-400 mb-2">Текущая цена подписки</h2>
-            <p className="text-red-300 text-lg flex items-center">
-              <CreditCard className="w-5 h-5 mr-2" />
-              {userInfo.price}
-            </p>
-          </div>
-        </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={handleOpenTelegramGroup}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full flex items-center justify-center transition-colors duration-300"
-          >
-            <Users className="w-5 h-5 mr-2" />
-            Присоединиться к Telegram-группе
-          </button>
-        </div>
+          <div className="flex justify-center">
+            <button
+                onClick={handleOpenTelegramGroup}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full flex items-center justify-center transition-colors duration-300"
+            >
+              <Users className="w-5 h-5 mr-2" />
+              Присоединиться к Telegram-группе
+            </button>
+          </div>
 
-        <div className="bg-gradient-to-r from-red-900 to-black p-6 rounded-lg shadow-lg border border-red-800">
-          <h2 className="text-2xl font-semibold text-red-400 mb-4">Скачать RubyTunnel</h2>
-          <div className="flex items-center justify-center">
-            {platform !== 'unknown' && downloadLinks[platform] ? (
-              <button
-                onClick={handleDownloadClick}
-                className="flex items-center justify-center bg-red-800 hover:bg-red-700 text-white p-3 rounded-md transition-colors duration-300"
-              >
-                <downloadLinks[platform].icon className="w-6 h-6 mr-2" />
-                Скачать для {downloadLinks[platform].name}
-              </button>
-            ) : (
-              <p className="text-red-300">Ваше устройство пока не поддерживается.</p>
-            )}
+          <div className="bg-gradient-to-r from-red-900 to-black p-6 rounded-lg shadow-lg border border-red-800">
+            <h2 className="text-2xl font-semibold text-red-400 mb-4">Скачать RubyTunnel</h2>
+            <div className="flex items-center justify-center">
+              {platform !== 'unknown' && downloadLinks[platform] ? (
+                  (() => {
+                    const { icon: Icon, name } = downloadLinks[platform] // Деструктурируем icon и name
+                    return (
+                        <button
+                            onClick={handleDownloadClick}
+                            className="flex items-center justify-center bg-red-800 hover:bg-red-700 text-white p-3 rounded-md transition-colors duration-300"
+                        >
+                          <Icon className="w-6 h-6 mr-2" />
+                          Скачать для {name}
+                        </button>
+                    )
+                  })()
+              ) : (
+                  <p className="text-red-300">Ваше устройство пока не поддерживается.</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
   )
 }
