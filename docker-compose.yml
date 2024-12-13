@@ -18,14 +18,8 @@ services:
     build: backend
     image: api-img
     container_name: api_service
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      WG_URL_NL: ${WG_URL_NL}
-      WG_PASSWORD_NL: ${WG_PASSWORD_NL}
-      WG_URL_SW: ${WG_URL_SW}
-      WG_PASSWORD_SW: ${WG_PASSWORD_SW}
+    env_file:
+      - .env
     ports:
       - "9090:9090"
     depends_on:
