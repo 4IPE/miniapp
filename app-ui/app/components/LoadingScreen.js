@@ -8,8 +8,8 @@ export default function LoadingScreen() {
                 <Image
                     src="/logo.png"
                     alt="RubyTunnel Logo"
-                    width={64}
-                    height={64}
+                    width={120}
+                    height={120}
                     className="animate-pulse mx-auto"
                     priority
                 />
