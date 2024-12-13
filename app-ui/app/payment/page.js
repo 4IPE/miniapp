@@ -1,40 +1,45 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import Layout from '../components/Layout'
-import { CreditCard, Zap } from 'lucide-react'
-import { useUser } from '../contexts/UserContext'
-import axiosConfig from '../config/axiosConfig'
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { CreditCard, Zap } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
+import axiosConfig from '../config/axiosConfig';
 
 export default function Payment() {
-  const [loading, setLoading] = useState(false)
-  const { userData } = useUser()
+  const [loading, setLoading] = useState(false);
+  const { userData } = useUser();
 
   const handlePayment = async () => {
     if (!userData || !userData.chatId) {
-      alert('Ошибка: пользователь не авторизован или отсутствует userId.')
-      return
+      alert('Ошибка: пользователь не авторизован или отсутствует userId.');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const params = new URLSearchParams({
-        userId: userData.chatId
+        userId: userData.chatId,
       });
       const response = await axiosConfig.get(`/payment/link?${params.toString()}`);
-      const { paymentLink } = response.data
+      const { paymentLink } = response.data;
+
       if (paymentLink) {
-        window.location.href = paymentLink
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.openLink(paymentLink);
+        } else {
+          window.location.href = paymentLink; 
+        }
       } else {
-        alert('Ошибка: ссылка на оплату отсутствует.')
+        alert('Ошибка: ссылка на оплату отсутствует.');
       }
     } catch (error) {
-      console.error('Ошибка получения ссылки на оплату:', error)
-      alert('Не удалось получить ссылку на оплату. Попробуйте позже.')
+      console.error('Ошибка получения ссылки на оплату:', error);
+      alert('Не удалось получить ссылку на оплату. Попробуйте позже.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
       <Layout currentPage="payment">
@@ -71,7 +76,9 @@ export default function Payment() {
               <button
                   onClick={handlePayment}
                   className={`w-full bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 text-white py-3 px-6 rounded-full flex items-center justify-center space-x-2 ${
-                      loading ? 'opacity-50 cursor-not-allowed' : 'hover:from-yellow-500 hover:via-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105'
+                      loading
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:from-yellow-500 hover:via-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105'
                   } focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50`}
                   disabled={loading}
               >
@@ -84,5 +91,5 @@ export default function Payment() {
           </div>
         </div>
       </Layout>
-  )
+  );
 }
