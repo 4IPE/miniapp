@@ -38,21 +38,33 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User getOrCreateUser(Long chatId, String username) {
-        User user = userRepository.findByChatId(chatId)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setChatId(chatId);
-                    newUser.setNameTg(username);
-                    return userRepository.save(newUser);
-                });
-        Long count = user.getCountReferalUsers();
-        Integer discountCount = Math.toIntExact(count <= 5 ? count * 10 : 50);
-        Integer newPrice = user.getPrice()-discountCount;
-        if (!newPrice.equals(user.getPrice())) {
+        // Найти или создать пользователя
+        User user = userRepository.findByChatId(chatId).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setChatId(chatId);
+            newUser.setNameTg(username);
+            newUser.setPrice(100); // Базовая цена
+            return userRepository.save(newUser);
+        });
+
+        // Подсчитать количество рефералов
+        Long currentReferralCount = userRepository.countActiveReferrals(String.valueOf(chatId));
+
+        // Если количество рефералов изменилось, обновить цену
+        if (!currentReferralCount.equals(user.getCountReferalUsers())) {
+            user.setCountReferalUsers(currentReferralCount);
+
+            // Рассчитать скидку
+            int discount = Math.toIntExact(currentReferralCount <= 5 ? currentReferralCount * 10 : 50);
+            Integer newPrice = Math.max(user.getPrice() - discount, 0); // Базовая цена = 100
             user.setPrice(newPrice);
+
+            log.info("User price updated for chatId {}: new price = {}, referrals = {}", chatId, newPrice, currentReferralCount);
         }
+
         return userRepository.save(user);
     }
+
 
     @Override
     @Transactional
@@ -82,7 +94,7 @@ public class UserServiceImpl implements UserService {
             if (user.getReferalCode() != null) {
                 throw new RuntimeException("Referral code already used");
             }
-
+            countReferalWithUsers(referralUser.getChatId());
             if (user.getActive()) {
                 user.setReferalCode(referralCode);
             } else {
@@ -93,8 +105,6 @@ public class UserServiceImpl implements UserService {
                     }
 
                     String wgId = wgApi.getClients(user.getNameTg());
-
-
                     user.setWgId(wgId);
                     user.setActive(true);
                     user.setDemo(true);
