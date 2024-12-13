@@ -1,8 +1,8 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -18,14 +18,8 @@ services:
     build: backend
     image: api-img
     container_name: api_service
-    environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      WG_URL_NL: ${WG_URL_NL}
-      WG_PASSWORD_NL: ${WG_PASSWORD_NL}
-      WG_URL_SW: ${WG_URL_SW}
-      WG_PASSWORD_SW: ${WG_PASSWORD_SW}
+    env_file:
+      - .env
     ports:
       - "9090:9090"
     depends_on:
@@ -37,9 +31,8 @@ services:
     build: bot
     image: bot-img
     container_name: bot
-    environment:
-      BOT_TOKEN: ${BOT_TOKEN}
-      BASE_URL: ${BASE_URL}
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     networks:
@@ -49,31 +42,9 @@ services:
     build: app-ui
     image: ui-img
     container_name: ui
-    environment:
-      NODE_ENV: ${NODE_ENV}
-      NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED}
-      BASE_URL: ${BASE_URL}
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     networks:
       - app_network
-
-  client:
-    build: client
-    image: client-img
-    container_name: client-con
-    ports:
-      - "8080:8080"
-    depends_on:
-      - api
-      - frontend
-    networks:
-      - app_network
-    restart: "on-failure"
-
-volumes:
-  postgres_data:
-
-networks:
-  app_network:
-    driver: bridge

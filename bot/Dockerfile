@@ -1,22 +1,14 @@
 FROM node:18-alpine
 
+# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы зависимостей
+# Копируем package.json и устанавливаем зависимости
 COPY package*.json ./
-
-# Устанавливаем зависимости
 RUN npm install
 
-# Копируем исходный код и конфиг TypeScript
+# Копируем весь исходный код
 COPY . .
-COPY tsconfig.json .
 
-# Собираем TypeScript в JavaScript
-RUN npm run build
-
-# Указываем порт (если нужно)
-EXPOSE 8000
-
-# Запускаем собранный бот
-CMD ["node", "dist/bot.js"] 
+# Указываем команду запуска
+CMD ["npm", "start"]
