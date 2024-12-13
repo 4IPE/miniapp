@@ -15,8 +15,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
-    private UserService userService;
-    private UserRepository userRepository;
+    private final  UserService userService;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
