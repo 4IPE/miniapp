@@ -1,5 +1,5 @@
 import { Telegraf, Markup } from 'telegraf';
-import axiosConfig from '/config/axiosConfig.js';
+import axiosConfig from './config/axiosConfig.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
