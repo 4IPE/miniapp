@@ -11,7 +11,7 @@ export default function Payment() {
   const { userData } = useUser()
 
   const handlePayment = async () => {
-    if (!userData || !userData.userId) {
+    if (!userData || !userData.chatId) {
       alert('Ошибка: пользователь не авторизован или отсутствует userId.')
       return
     }
@@ -19,7 +19,7 @@ export default function Payment() {
     setLoading(true)
     try {
       const response = await axiosConfig.get('/payment/link', {
-        params: { userId: userData.userId },
+        params: { userId: userData.chatId },
       })
       const { paymentLink } = response.data
       if (paymentLink) {
