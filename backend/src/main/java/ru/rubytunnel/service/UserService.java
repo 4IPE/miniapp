@@ -30,4 +30,6 @@ public interface UserService {
 
     @Transactional
     Long countReferalWithUsers(Long chatId);
+
+    Map<Long, String> checkSubscriptions();
 }

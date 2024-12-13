@@ -124,4 +124,14 @@ public class UserController {
         }
 
     }
+    @GetMapping("/user/checkSubscriptions")
+    public ResponseEntity<Map<Long, String>> checkSubscriptions() {
+        try {
+            Map<Long, String> result = userService.checkSubscriptions();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("Error checking subscriptions", e);
+            return ResponseEntity.badRequest().body(Map.of(-1L, "Error: " + e.getMessage()));
+        }
+    }
 }

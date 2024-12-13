@@ -193,4 +193,55 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return count;
     }
+
+    @Override
+    public Map<Long, String> checkSubscriptions() {
+        Map<Long, String> result = new HashMap<>();
+
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1);
+
+        List<User> expiringTomorrow = userRepository.findUsersExpiringTomorrow(tomorrow);
+        for (User user : expiringTomorrow) {
+            Long chatId = user.getChatId();
+
+
+            String message = """
+                    ⚠️ *Ваша подписка истекает через 1 день.* 
+                    Пожалуйста, продлите доступ, чтобы продолжить пользоваться услугами.
+                    """;
+
+            result.put(chatId, message);
+            user.setInformStatus(true);
+            userRepository.save(user);
+
+            log.info("User {} получил предупреждение об окончании подписки", chatId);
+        }
+
+
+        List<User> expiredUsers = userRepository.findUsersExpired();
+        for (User user : expiredUsers) {
+            Long chatId = user.getChatId();
+
+
+            if (user.getWgId() != null) {
+                wgApi.disableClientWg(user.getWgId());
+            }
+            user.setActive(false);
+            user.setSubscriptionEndDate(null);
+            user.setWgId(null);
+
+
+            String message = """
+                    ❌ *Ваша подписка истекла.* 
+                    Доступ к VPN был отключен. Для повторного подключения, пожалуйста, оплатите подписку.
+                    """;
+
+            result.put(chatId, message);
+
+            userRepository.save(user);
+            log.info("User {} подписка истекла, VPN отключён", chatId);
+        }
+
+        return result;
+    }
 }

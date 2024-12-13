@@ -27,8 +27,8 @@ public class WgApi {
     private String cookies;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public WgApi(@Value("${wg.url}") String urlWg,
-                 @Value("${wg.password}") String passwordWg) {
+    public WgApi(@Value("${wg.url.sw}") String urlWg,
+                 @Value("${wg.password.sw}") String passwordWg) {
         this.urlWg = urlWg;
         this.passwordWg = passwordWg;
         this.restTemplate = new RestTemplate();

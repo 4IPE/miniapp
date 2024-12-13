@@ -27,8 +27,8 @@ export default function Home() {
 
       try {
         const params = new URLSearchParams({
-          userId: user.id || '770055005',
-          username: username || 'all0b0y',
+          userId: user.id ,
+          username: username ,
         });
 
         const response = await axiosConfig.get(`/user/profile?${params.toString()}`);

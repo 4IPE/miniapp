@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: dan0884215
-      POSTGRES_DB: vpn_data
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -14,27 +14,32 @@ services:
     networks:
       - app_network
 
-
   api:
     build: backend
     image: api-img
     container_name: api_service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/vpn_data
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: dan0884215
-      WG_URL: http://147.45.137.246:51821
-      WG_PASSWORD: hi2jS,.eMZr#rF
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      WG_URL_NL: ${WG_URL_NL}
+      WG_PASSWORD_NL: ${WG_PASSWORD_NL}
+      WG_URL_SW: ${WG_URL_SW}
+      WG_PASSWORD_SW: ${WG_PASSWORD_SW}
     ports:
       - "9090:9090"
     depends_on:
       - db
     networks:
       - app_network
+
   bot:
     build: bot
     image: bot-img
     container_name: bot
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      BASE_URL: ${BASE_URL}
     ports:
       - "8000:8000"
     networks:
@@ -45,8 +50,9 @@ services:
     image: ui-img
     container_name: ui
     environment:
-      - NODE_ENV=production
-      - NEXT_TELEMETRY_DISABLED=1
+      NODE_ENV: ${NODE_ENV}
+      NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED}
+      BASE_URL: ${BASE_URL}
     ports:
       - "3000:3000"
     networks:
@@ -64,6 +70,7 @@ services:
     networks:
       - app_network
     restart: "on-failure"
+
 volumes:
   postgres_data:
 
