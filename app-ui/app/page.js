@@ -1,166 +1,95 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Layout from './components/Layout';
-import { Download, Shield, Lock, Gem } from 'lucide-react';
-import { useUser } from './contexts/UserContext';
-import axiosConfig from './config/axiosConfig';
+import React, { useState } from 'react';
+import Layout from '../components/Layout';
+import { CreditCard, Zap } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
+import axiosConfig from '../config/axiosConfig';
 
-export default function Home() {
-  const { userData, updateUserData } = useUser();
-  const [isPaid, setIsPaid] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+export default function Payment() {
+  const [loading, setLoading] = useState(false);
+  const { userData } = useUser();
 
-  useEffect(() => {
-    const initUser = async () => {
-      if (isInitialized || !window.Telegram?.WebApp) {
-        return;
-      }
-
-      const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      if (!user) {
-        console.error('User data not found');
-        return;
-      }
-
-      const username = user.username ? user.username : user.id;
-
-      try {
-        const params = new URLSearchParams({
-          userId: user.id || '770055005',
-          username: username || 'all0b0y',
-        });
-
-        const response = await axiosConfig.get(`/user/profile?${params.toString()}`);
-        const userInfo = response.data;
-
-        updateUserData(userInfo);
-        setIsPaid(userInfo.active);
-        setIsInitialized(true);
-      } catch (error) {
-        console.error('Error initializing user:', error);
-      }
-    };
-
-    if (window.Telegram?.WebApp) {
-      initUser();
-    }
-  }, [updateUserData, isInitialized]);
-
-  const handlePurchase = () => {
-    if (!isPaid) {
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.showAlert('Перенаправление на страницу оплаты...');
-      }
-      window.location.href = '/payment';
-    } else {
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.showAlert('Подписка уже активна.');
-      }
-    }
-  };
-
-  const handleDownloadConfig = (server) => {
-    if (!isPaid) {
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.showAlert('Пожалуйста, приобретите VPN для загрузки конфигурации');
-      }
+  const handlePayment = async () => {
+    if (!userData || !userData.chatId) {
+      alert('Ошибка: пользователь не авторизован или отсутствует userId.');
       return;
     }
 
-    const downloadUrl = `https://ruby-tunnel.ru/api/user/config?userId=${userData.chatId}`;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        userId: userData.chatId,
+      });
+      const response = await axiosConfig.get(`/payment/link?${params.toString()}`);
+      const { paymentLink } = response.data;
 
-    if (window.Telegram?.WebApp) {
-      // Перенаправляем в браузер
-      window.Telegram.WebApp.openLink(downloadUrl);
-    } else {
-      // Если Telegram Web App недоступен, используем обычный переход
-      window.location.href = downloadUrl;
+      if (paymentLink) {
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.openLink(paymentLink); // Используем Telegram WebApp API
+        } else {
+          window.location.href = paymentLink; // Резервный вариант для браузеров
+        }
+      } else {
+        alert('Ошибка: ссылка на оплату отсутствует.');
+      }
+    } catch (error) {
+      console.error('Ошибка получения ссылки на оплату:', error);
+      alert('Не удалось получить ссылку на оплату. Попробуйте позже.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const formatSubscriptionDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    };
-    return date.toLocaleString('ru-RU', options);
-  };
-
-  const subscriptionText = isPaid
-    ? `Подписка активна до ${formatSubscriptionDate(userData?.subscriptionEndDate)}`
-    : `Купить VPN за ${userData?.price || '999'} ₽`;
-
   return (
-    <Layout currentPage="home">
-      <div className="flex flex-col items-center justify-center space-y-6">
-        <div className="relative">
-          <Shield className="w-20 h-20 text-red-500" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-10 h-10 bg-red-600 rounded-full transform rotate-45"></div>
-          </div>
-        </div>
-        <h1 className="text-3xl font-bold text-red-500 text-center">RubyTunnel</h1>
-        <p className="text-red-300 text-center max-w-md">
-          Откройте для себя скрытый драгоценный камень VPN-технологии. RubyTunnel: Где безопасность сияет ярко, как отполированный рубин.
-        </p>
-        <div className="flex space-x-4">
-          <button
-            onClick={handlePurchase}
-            className={`${isPaid ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white px-6 py-2 rounded-full flex items-center justify-center transition-colors duration-300 text-sm`}
-          >
-            <Gem className="w-4 h-4 mr-2" />
-            {subscriptionText}
-          </button>
-        </div>
-
-        <div className="w-full max-w-md space-y-4">
-          <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
-            <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">
-              <span className="mr-2 text-2xl" aria-label="Флаг Нидерландов">🇳🇱</span>
-              Нидерланды
-            </h2>
-            <button
-              onClick={() => handleDownloadConfig('Нидерланды')}
-              className="w-full bg-red-700 hover:bg-red-600 text-white py-2 px-4 rounded-full flex items-center justify-center transition-colors duration-300"
-              disabled={!isPaid}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Скачать конфигурацию
-            </button>
-            {!isPaid && (
-              <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-                <Lock className="w-12 h-12 text-red-500 animate-pulse" />
+      <Layout currentPage="payment">
+        <div className="space-y-12 py-8">
+          <h1 className="text-4xl font-bold text-red-500 text-center bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-orange-500">
+            Доступ к Квантовому Хранилищу
+          </h1>
+          <div className="max-w-md mx-auto bg-gradient-to-br from-red-900 via-red-800 to-black p-8 rounded-2xl shadow-lg border border-red-700 hover:border-red-500 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-red-300">YooMoney Шлюз</h2>
+              <div className="bg-red-600 rounded-full p-3 animate-pulse">
+                <CreditCard className="w-6 h-6 text-white" />
               </div>
-            )}
-          </div>
-
-          <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
-            <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">
-              <span className="mr-2 text-2xl" aria-label="Флаг Швеции">🇸🇪</span>
-              Швеция
-            </h2>
-            <button
-              onClick={() => handleDownloadConfig('Швеция')}
-              className="w-full bg-red-700 hover:bg-red-600 text-white py-2 px-4 rounded-full flex items-center justify-center transition-colors duration-300"
-              disabled={!isPaid}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Скачать конфигурацию
-            </button>
-            {!isPaid && (
-              <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-                <Lock className="w-12 h-12 text-red-500 animate-pulse" />
+            </div>
+            <p className="text-red-200 mb-8">
+              Защитите свой доступ к RubyTunnel с помощью нашего передового платежного портала.
+              Одноразовая активация для пожизненной цифровой защиты.
+            </p>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-red-300">
+                <span>Квантовое Шифрование</span>
+                <span>Включено</span>
               </div>
-            )}
+              <div className="flex justify-between items-center text-red-300">
+                <span>Временной Файервол</span>
+                <span>Включено</span>
+              </div>
+              <div className="flex justify-between items-center text-red-300">
+                <span>Нейросетевая Защита</span>
+                <span>Включено</span>
+              </div>
+            </div>
+            <div className="mt-8">
+              <button
+                  onClick={handlePayment}
+                  className={`w-full bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 text-white py-3 px-6 rounded-full flex items-center justify-center space-x-2 ${
+                      loading
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:from-yellow-500 hover:via-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105'
+                  } focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50`}
+                  disabled={loading}
+              >
+              <span className="text-lg font-semibold">
+                {loading ? 'Загрузка...' : 'Активировать через YooMoney'}
+              </span>
+                {!loading && <Zap className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </Layout>
+      </Layout>
   );
 }
