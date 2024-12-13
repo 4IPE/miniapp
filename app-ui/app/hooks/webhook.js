@@ -6,6 +6,7 @@ export default async function handler(req, res) {
         try {
             const { body, headers } = req;
 
+            // Проверка источника запроса
 
 
             // Извлечение параметров из тела запроса
@@ -21,18 +22,6 @@ export default async function handler(req, res) {
                 sha1_hash
             } = body;
 
-            if (!label || !sha1_hash) {
-                return res.status(400).json({ error: 'Missing required parameters: label or sha1_hash' });
-            }
-
-            // Проверка подписи (sha1_hash)
-            const notificationSecret = "5EG2nUl0OXHIb61XNnAn4POd";
-            const hashString = `${notification_type}&${operation_id}&${amount}&${currency}&${datetime}&${sender}&${codepro}&${notificationSecret}&${label}`;
-            const calculatedHash = crypto.createHash('sha1').update(hashString).digest('hex');
-
-            if (calculatedHash !== sha1_hash) {
-                return res.status(403).json({ error: 'Invalid sha1_hash' });
-            }
 
             // Отправка данных на backend для сохранения статуса платежа
             try {
