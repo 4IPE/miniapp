@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Layout from '../components/Layout'
 import { CreditCard, Zap } from 'lucide-react'
-import { useUser } from '../context/UserContext'
+import { useUser } from '../contexts/UserContext'
 import axiosConfig from '../config/axiosConfig'
 
 export default function Payment() {
