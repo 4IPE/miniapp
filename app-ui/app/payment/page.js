@@ -55,8 +55,7 @@ export default function Payment() {
               </div>
             </div>
             <p className="text-red-200 mb-8">
-              Защитите свой доступ к RubyTunnel с помощью нашего передового платежного портала.
-              Одноразовая активация для пожизненной цифровой защиты.
+              Защитите свой доступ к RubyTunnel с помощью нашего передового платежного портала
             </p>
             <div className="space-y-4">
               <div className="flex justify-between items-center text-red-300">

@@ -1,41 +1,52 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import Layout from '../components/Layout'
-import { User, HelpCircle, Apple, Smartphone as Android, Monitor as Windows, Users, CreditCard } from 'lucide-react'
-import { useUser } from '../contexts/UserContext'
-import Link from 'next/link'
+import React, { useEffect, useState } from 'react';
+import Layout from '../components/Layout';
+import {
+  User,
+  HelpCircle,
+  Apple,
+  Smartphone as Android,
+  Monitor as Windows,
+  Users,
+  CreditCard,
+} from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
+import Link from 'next/link';
 
 export default function Profile() {
-  const { userData } = useUser()
-  const [platform, setPlatform] = useState('unknown')
+  const { userData } = useUser();
+  const [platform, setPlatform] = useState('unknown');
 
-  // Определяем платформу при загрузке
   useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase()
+    const userAgent = navigator.userAgent.toLowerCase();
     if (/android/.test(userAgent)) {
-      setPlatform('android')
+      setPlatform('android');
     } else if (/iphone|ipad|ipod/.test(userAgent)) {
-      setPlatform('ios')
+      setPlatform('ios');
     } else if (/win/.test(userAgent)) {
-      setPlatform('windows')
+      setPlatform('windows');
     } else if (/mac/.test(userAgent)) {
-      setPlatform('mac')
+      setPlatform('mac');
     }
-  }, [])
+  }, []);
 
   const userInfo = {
     name: userData?.nameTg || 'Гость',
     active: userData?.active || false,
     subscriptionEndDate: userData?.subscriptionEndDate || 'Не активирована',
     price: userData?.price ? `${userData.price} ₽/месяц` : 'Не указана',
-  }
+  };
 
   const faqItems = [
     { question: 'Как использовать RubyTunnel?', answer: 'Скачайте приложение, установите и следуйте инструкциям по настройке.' },
     { question: 'Какие устройства поддерживаются?', answer: 'RubyTunnel поддерживает iOS, Android, macOS и Windows.' },
     { question: 'Как обновить подписку?', answer: 'Перейдите в раздел "Оплата" и выберите план продления.' },
-  ]
+    {
+      question: 'Как работает ваша реферальная система?',
+      answer: `Реферал — это участник партнёрской программы, который регистрируется на проекте по рекомендации другого участника. Вы рекомендуете нас друзьям, а мы вознаграждаем вас скидками на услуги. Всё просто! Ознакомьтесь с дополнительной информацией можно в нашем сообществе!`,
+    },
+  ];
 
   const downloadLinks = {
     ios: {
@@ -58,40 +69,40 @@ export default function Profile() {
       icon: Windows,
       link: 'https://download.wireguard.com/windows-client/wireguard-installer.exe',
     },
-  }
+  };
 
   const formatSubscriptionDate = (dateString) => {
-    if (!dateString || dateString === 'Не активирована') return 'Не активирована'
-    const date = new Date(dateString)
+    if (!dateString || dateString === 'Не активирована') return 'Не активирована';
+    const date = new Date(dateString);
     const options = {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }
-    return date.toLocaleString('ru-RU', options)
-  }
+    };
+    return date.toLocaleString('ru-RU', options);
+  };
 
   const handleDownloadClick = () => {
-    const currentLink = downloadLinks[platform]?.link || '#'
+    const currentLink = downloadLinks[platform]?.link || '#';
     if (currentLink === '#') {
-      alert('Ссылка для вашего устройства пока недоступна.')
+      alert('Ссылка для вашего устройства пока недоступна.');
     } else if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openLink(currentLink)
+      window.Telegram.WebApp.openLink(currentLink);
     } else {
-      window.location.href = currentLink
+      window.location.href = currentLink;
     }
-  }
+  };
 
   const handleOpenTelegramGroup = () => {
-    const groupLink = 'https://t.me/rubytun_vpn'
+    const groupLink = 'https://t.me/rubytun_vpn';
     if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.openLink(groupLink)
+      window.Telegram.WebApp.openLink(groupLink);
     } else {
-      window.location.href = groupLink
+      window.location.href = groupLink;
     }
-  }
+  };
 
   return (
       <Layout currentPage="profile">
@@ -137,7 +148,7 @@ export default function Profile() {
             <div className="flex items-center justify-center">
               {platform !== 'unknown' && downloadLinks[platform] ? (
                   (() => {
-                    const { icon: Icon, name } = downloadLinks[platform] // Деструктурируем icon и name
+                    const { icon: Icon, name } = downloadLinks[platform]; // Деструктурируем icon и name
                     return (
                         <button
                             onClick={handleDownloadClick}
@@ -146,14 +157,26 @@ export default function Profile() {
                           <Icon className="w-6 h-6 mr-2" />
                           Скачать для {name}
                         </button>
-                    )
+                    );
                   })()
               ) : (
                   <p className="text-red-300">Ваше устройство пока не поддерживается.</p>
               )}
             </div>
           </div>
+
+          <div className="bg-gradient-to-r from-red-900 to-black p-6 rounded-lg shadow-lg border border-red-800">
+            <h2 className="text-2xl font-semibold text-red-400 mb-4">Часто задаваемые вопросы</h2>
+            <div className="space-y-4">
+              {faqItems.map((item, index) => (
+                  <div key={index} className="bg-red-800 p-4 rounded-md">
+                    <h3 className="text-lg font-semibold text-red-300 mb-2">{item.question}</h3>
+                    <p className="text-red-200">{item.answer}</p>
+                  </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Layout>
-  )
+  );
 }

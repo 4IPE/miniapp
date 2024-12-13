@@ -30,9 +30,6 @@ export default function Guide() {
                 </div>
                 <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
               </div>
-              <div className="mt-4 overflow-hidden h-8">
-                <p className="text-red-300 text-sm animate-float">Раскрывая блеск безопасного просмотра...</p>
-              </div>
             </div>
           ))}
         </div>
