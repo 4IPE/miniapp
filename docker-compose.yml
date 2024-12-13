@@ -49,6 +49,18 @@ services:
     networks:
       - app_network
 
+  client:
+    build: client
+    image: client-img
+    container_name: client-con
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - app_network
+    restart: "on-failure"
 
 volumes:
   postgres_data:
