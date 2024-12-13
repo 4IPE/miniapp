@@ -11,4 +11,4 @@ RUN npm install
 COPY . .
 
 # Указываем команду запуска
-CMD ["npm", "start"]
+CMD ["node", "bot.js"]

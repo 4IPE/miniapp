@@ -3,8 +3,8 @@ import axiosConfig from '/config/axiosConfig.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const WEB_APP_URL = process.env.WEB_APP_URL;
+const BOT_TOKEN = '7477824545:AAGgE7PVm9DwLEZahSyCwzN0oN9-mZqpWeo';
+const WEB_APP_URL = 'https://ruby-tunnel.ru';
 const bot = new Telegraf(BOT_TOKEN);
 
 
