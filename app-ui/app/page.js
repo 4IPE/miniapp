@@ -117,26 +117,26 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="w-full max-w-md space-y-4">
-          <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
-            <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">
-              <span className="mr-2 text-2xl" aria-label="Флаг Нидерландов">🇳🇱</span>
-              Нидерланды
-            </h2>
-            <button
-              onClick={() => handleDownloadConfig('Нидерланды')}
-              className="w-full bg-red-700 hover:bg-red-600 text-white py-2 px-4 rounded-full flex items-center justify-center transition-colors duration-300"
-              disabled={!isPaid}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Скачать конфигурацию
-            </button>
-            {!isPaid && (
-              <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-                <Lock className="w-12 h-12 text-red-500 animate-pulse" />
-              </div>
-            )}
-          </div>
+//        <div className="w-full max-w-md space-y-4">
+//          <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
+//            <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">
+//              <span className="mr-2 text-2xl" aria-label="Флаг Нидерландов">🇳🇱</span>
+//              Нидерланды
+//            </h2>
+//            <button
+//              onClick={() => handleDownloadConfig('Нидерланды')}
+//              className="w-full bg-red-700 hover:bg-red-600 text-white py-2 px-4 rounded-full flex items-center justify-center transition-colors duration-300"
+//              disabled={!isPaid}
+//            >
+//              <Download className="w-4 h-4 mr-2" />
+//              Скачать конфигурацию
+//            </button>
+//            {!isPaid && (
+//              <div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+//                <Lock className="w-12 h-12 text-red-500 animate-pulse" />
+//              </div>
+//            )}
+//          </div>
 
           <div className="bg-gradient-to-br from-red-900 via-red-800 to-black p-6 rounded-2xl shadow-2xl border-2 border-red-600 relative overflow-hidden">
             <h2 className="text-xl font-bold text-red-300 mb-4 flex items-center">

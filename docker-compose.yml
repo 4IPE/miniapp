@@ -48,3 +48,11 @@ services:
       - "3000:3000"
     networks:
       - app_network
+
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge
