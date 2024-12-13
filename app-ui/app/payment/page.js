@@ -18,9 +18,10 @@ export default function Payment() {
 
     setLoading(true)
     try {
-      const response = await axiosConfig.get('/payment/link', {
-        params: { userId: userData.chatId },
-      })
+      const params = new URLSearchParams({
+        userId: userData.chatId
+      });
+      const response = await axiosConfig.get(`/payment/link?${params.toString()}`);
       const { paymentLink } = response.data
       if (paymentLink) {
         window.location.href = paymentLink

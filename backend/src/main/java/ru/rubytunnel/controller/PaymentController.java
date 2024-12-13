@@ -18,7 +18,7 @@ public class PaymentController {
 
 
     @GetMapping("/payment/link")
-    public ResponseEntity<?> getPaymentLink(@RequestParam Long userId) {
+    public ResponseEntity<?> getPaymentLink(@RequestParam(name="userId") Long userId) {
         try {
             String paymentLink = paymentService.generatePaymentLink(userId);
             return ResponseEntity.ok(Map.of("paymentLink", paymentLink));
