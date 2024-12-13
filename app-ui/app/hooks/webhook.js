@@ -6,11 +6,7 @@ export default async function handler(req, res) {
         try {
             const { body, headers } = req;
 
-            // Проверка источника запроса
-            const referer = headers['referer'] || headers['origin'];
-            if (!referer || !referer.startsWith('https://yoomoney.ru')) {
-                return res.status(403).json({ error: 'Invalid request source' });
-            }
+
 
             // Извлечение параметров из тела запроса
             const {
