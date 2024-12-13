@@ -13,7 +13,9 @@ import org.springframework.web.client.RestTemplate;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -47,7 +49,7 @@ public class WgApi {
 
         if (response.getStatusCode().is2xxSuccessful()) {
             this.cookies = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-            log.info("Сессия создана{}",cookies);
+            log.info("Сессия создана{}", cookies);
             if (this.cookies == null) {
                 throw new RuntimeException("No session cookie returned by the server");
             }

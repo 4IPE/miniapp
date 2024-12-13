@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS users (
     count_referal_users BIGINT DEFAULT 0,
     demo BOOLEAN DEFAULT false,
     price INTEGER DEFAULT 100,
-    inform_status BOOLEAN DEFAULT false
+    inform_status BOOLEAN DEFAULT false,
+    pay_label VARCHAR
 );

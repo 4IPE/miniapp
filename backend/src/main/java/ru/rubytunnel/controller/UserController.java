@@ -7,7 +7,10 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.rubytunnel.model.User;
 import ru.rubytunnel.service.UserService;
 
@@ -95,27 +98,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/payment/create")
-    public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> data) {
-        try {
-            User user = userService.createPayment(data);
-            return ResponseEntity.ok(Map.of("message", "Payment created successfully"));
-        } catch (Exception e) {
-            log.error("Error creating payment: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    @GetMapping("/payment/status/{paymentId}")
-    public ResponseEntity<?> getPaymentStatus(@PathVariable String paymentId) {
-        try {
-            Map<String, Object> status = userService.getPaymentStatus(paymentId);
-            return ResponseEntity.ok(status);
-        } catch (Exception e) {
-            log.error("Error getting payment status: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
 
     @PostMapping("/user/referral/input")
     public ResponseEntity<?> enterReferralCode(@RequestParam(name = "chatId") Long chatId,

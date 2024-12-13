@@ -41,4 +41,8 @@ public class User {
 
     @Column(name = "inform_status")
     private Boolean informStatus = false;
+
+    @Column(name="pay_label")
+    private String payLabel;
+
 }

@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,7 +22,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final WgApi wgApi;
-    private final Map<String, Map<String, Object>> payments = new HashMap<>();
 
     @Override
     public User getUserProfile(Long userId) {
@@ -32,15 +30,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserWithLabel(String label) {
+        return userRepository.findByPayLabel(label)
+                .orElseThrow(() -> new RuntimeException("This operation don t found"));
+    }
+
+    @Override
     @Transactional
     public User getOrCreateUser(Long chatId, String username) {
-        return userRepository.findByChatId(chatId)
+        User user = userRepository.findByChatId(chatId)
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setChatId(chatId);
                     newUser.setNameTg(username);
                     return userRepository.save(newUser);
                 });
+        Long count = user.getCountReferalUsers();
+        Integer newPrice = Math.toIntExact(user.getPrice() - count <= 5 ? count * 10 : 50);
+        if (!newPrice.equals(user.getPrice())) {
+            user.setPrice(newPrice);
+        }
+        return userRepository.save(user);
     }
 
     @Override
@@ -59,25 +69,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User enterReferralCode(Long userId, Long referralCode) {
         try {
-            // Получаем текущего пользователя
             User user = getUserProfile(userId);
 
-            // Проверяем существование пользователя с таким referral кодом
             User referralUser = userRepository.findByChatId(referralCode)
                     .orElseThrow(() -> new RuntimeException("Referral user not found"));
 
-            // Проверяем, не пытается ли пользователь использовать свой собственный код
             if (user.getChatId().equals(referralUser.getChatId())) {
                 throw new RuntimeException("Cannot use own referral code");
             }
 
-            // Проверяем, не использовал ли пользователь уже реферальный код
             if (user.getReferalCode() != null) {
                 throw new RuntimeException("Referral code already used");
             }
 
             if (user.getActive()) {
-                // Если пользователь уже активен, просто добавляем реферальный код
                 user.setReferalCode(referralCode);
             } else {
                 try {
@@ -108,6 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User activateUserVpn(Long userId) {
         User user = getUserProfile(userId);
 
@@ -165,19 +171,6 @@ public class UserServiceImpl implements UserService {
         user.setWgId(null);
 
         return userRepository.save(user);
-    }
-
-    @Override
-    public User createPayment(Map<String, Object> data) {
-        String paymentId = "payment_" + UUID.randomUUID().toString();
-        payments.put(paymentId, data);
-        // Implement payment logic
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> getPaymentStatus(String paymentId) {
-        return payments.getOrDefault(paymentId, Map.of("error", "Payment not found"));
     }
 
     @Transactional

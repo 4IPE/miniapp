@@ -10,6 +10,8 @@ import java.util.Map;
 public interface UserService {
     User getUserProfile(Long userId);
 
+    User getUserWithLabel(String label);
+
     User getOrCreateUser(Long chatId, String username);
 
     User createUser(Long chatId, String name);
@@ -25,10 +27,6 @@ public interface UserService {
     List<User> getAllUsers();
 
     User disableClient(Long userId);
-
-    User createPayment(Map<String, Object> data);
-
-    Map<String, Object> getPaymentStatus(String paymentId);
 
     @Transactional
     Long countReferalWithUsers(Long chatId);
