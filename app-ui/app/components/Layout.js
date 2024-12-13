@@ -16,10 +16,10 @@ export default function Layout({ children, currentPage }) {
     const openTelegramChat = () => {
         if (window.Telegram?.WebApp) {
             // Используем WebApp.openLink для открытия чата
-            window.Telegram.WebApp.openLink('https://web.telegram.org/a/#770055005');
+            window.Telegram.WebApp.openLink('https://t.me/all0b0y');
         } else {
             // Резервный вариант, если WebApp недоступен
-            window.open('https://web.telegram.org/a/#770055005', '_blank');
+            window.open('https://t.me/all0b0y', '_blank');
         }
     };
 
