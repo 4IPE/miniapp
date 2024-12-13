@@ -46,7 +46,8 @@ public class UserServiceImpl implements UserService {
                     return userRepository.save(newUser);
                 });
         Long count = user.getCountReferalUsers();
-        Integer newPrice = Math.toIntExact(user.getPrice() - count <= 5 ? count * 10 : 50);
+        Integer discountCount = Math.toIntExact(count <= 5 ? count * 10 : 50);
+        Integer newPrice = user.getPrice()-discountCount;
         if (!newPrice.equals(user.getPrice())) {
             user.setPrice(newPrice);
         }
